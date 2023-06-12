@@ -1,0 +1,47 @@
+#!/bin/sh
+
+prefix="/usr"
+exec_prefix="/usr"
+VERSION="1.8.3"
+CFLAGS="-fno-strict-aliasing -Wunused-function -Wstrict-prototypes -Wwrite-strings -W -Wall -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 -D_FORTIFY_SOURCE=1"
+CPPFLAGS="-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -I/home/gary/EmbeddedLinuxBBB/buildroot/output/host/arm-buildroot-linux-gnueabihf/sysroot/usr/include"
+LDFLAGS="  -L/home/gary/EmbeddedLinuxBBB/buildroot/output/host/arm-buildroot-linux-gnueabihf/sysroot/usr/lib"
+PYTHON_CPPFLAGS=""
+PYTHON_LDFLAGS="@PYTHON_LDFLAGS@"
+LIBS=" -lssl  -lcrypto"
+LIBDIR="${exec_prefix}/lib"
+INCLUDEDIR="${prefix}/include"
+LIBVERSION="8:0:5"
+
+
+for arg in $@
+do
+    if [ $arg = "--cflags" ]
+    then
+        echo "-I${INCLUDEDIR}"
+    fi
+    if [ $arg = "--python-cflags" ]
+    then
+        echo "${PYTHON_CPPFLAGS} -I${INCLUDEDIR}"
+    fi
+    if [ $arg = "--libs" ]
+    then
+        echo "${LDFLAGS} -L${LIBDIR} ${LIBS} -lldns"
+    fi
+    if [ $arg = "--python-libs" ]
+    then
+        echo "${LDFLAGS} ${PYTHON_LDFLAGS} -L${LIBDIR} ${LIBS} -lldns"
+    fi
+    if [ $arg = "-h" ] || [ $arg = "--help" ]
+    then
+        echo "Usage: $0 [--cflags] [--python-cflags] [--libs] [--python-libs] [--version]"
+    fi
+    if [ $arg = "--version" ]
+    then
+        echo "${VERSION}"
+    fi
+    if [ $arg = "--libversion" ]
+    then
+        echo "${LIBVERSION}"
+    fi
+done

@@ -1,0 +1,9 @@
+console=ttyS0,115200n8
+ipaddr=192.168.0.111
+serverip=192.168.0.110
+absolutepath=
+rootpath=/srv/nfs,nolock,rw,vers=3
+loadtftp=echo Booting from network ...;tftpboot ${loadaddr} ${absolutepath}uImage; tftpboot ${fdtaddr} ${absolutepath}am335x-boneblack.dtb
+netargs=setenv bootargs console=${console} root=/dev/nfs rw rootfstype=nfs nfsroot=${serverip}:${rootpath} ip=192.168.0.111:192.168.0.110:192.168.0.1:255.255.255.0::eth0:off
+uenvcmd=setenv autoload no; run loadtftp; run netargs; bootm ${loadaddr} - ${fdtaddr}
+
