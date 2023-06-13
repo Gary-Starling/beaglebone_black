@@ -1,50 +1,46 @@
 Host PC:
-
 Distributor ID:	Ubuntu
 Description:	Ubuntu 22.04.2 LTS
 Release:	22.04
 Codename:	jammy
-
 5.19.0-41-generic
 
 dev:
 Beaglebone Black
 
-on host pc you need tftp and rfs server.
+1)On host pc you need install tftp and rfs server.
 
- ***buildroot***
-make menuconfig
+2)***buildroot***
+- make menuconfig
  use external toolchain gcc-linaro-12.2.1-2023.03-x86_64_arm-linux-gnueabihf
  gcc version 12.x
  glibc
  target Busybox
  not compile kernel and u-boot
  add openssh
-make
+- make
 buildroot/output/images/rootfs.tar
-extract your filesystem
-home/usr/nfs
+extract your filesystem to nfs-path; for exmple -> home/usr/nfs
  
  
-1)u-boot v2018.01
+2))***u-boot v2018.01)***
 0001-am335x_evm-uEnv.txt-bootz-n-fixes.patch
 0002-U-Boot-BeagleBone-Cape-Manager.patch
  └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- distclean
  └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- am335x_boneblack_defconfig
- //a have six cores
- └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j6 
- 
+ └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j6 							//i have six cores
+ output ->
  -MLO
  -u-boot-spl.bin
  -u-boot.img
  
-2)kernel Linux 5.18-rc4
+3)***)kernel Linux 5.18-rc4)***
   └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- distclean
   └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- omap2plus_defconfig
   └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage dtbs LOADADDR=0x80008000 -j6
   Kernel: arch/arm/boot/uImage is ready
   └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j6 modules
-  └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=home/usr/nfs modules_install
+  └─ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=<nfs-path> modules_install
   
   add /usr/nfs/etc resolv.conf
   >domain localdomain
@@ -52,9 +48,9 @@ home/usr/nfs
   >nameserver 8.8.8.8
   >nameserver 8.8.4.4
   
- 3)copy to sdcard MLO,uEnv.txt,u-boot-spl,u-boot.img
+4)copy to sdcard MLO,uEnv.txt,u-boot-spl,u-boot.img
  Load uImage and dtb from host.
- !!!Use your own ip
+ !!!Use your own ip!!!
 cat uEnv.txt >   
 console=ttyS0,115200n8
 ipaddr=192.168.0.111
@@ -65,8 +61,7 @@ loadtftp=echo Booting from network ...;tftpboot ${loadaddr} ${absolutepath}uImag
 netargs=setenv bootargs console=${console} root=/dev/nfs rw rootfstype=nfs nfsroot=${serverip}:${rootpath} ip=192.168.0.111:192.168.0.110:192.168.0.1:255.255.255.0::eth0:off
 uenvcmd=setenv autoload no; run loadtftp; run netargs; bootm ${loadaddr} - ${fdtaddr}
 
-4) copy home/usr/nfs to /srv/nfs (my nfs server folder)
-   copy uImage and dtb to /srv/tftp 
+4) copy uImage and dtb to /srv/tftp (my tftp foldder)
    /srv/nfs/etc/ssh/sshd_config
    	port 22
    	PermitRootLogin yes
