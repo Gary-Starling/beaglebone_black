@@ -219,16 +219,15 @@ int chardrv_module_init(void)
         return res;
     }
 
-    printk(KERN_INFO "Major = %d Minor = %d.\n", MAJOR(dev_numb), MINOR(dev_numb));
-
     /* init cdev structure */
     for (i = 0; i < MAX_MINOR; i++)
     {
+        printk(KERN_INFO "Major = %d Minor = %d.\n", MAJOR(dev_numb), MINOR(dev_numb + i));
         cdev_init(&devs[i].cdev_chardrv, &chardrv_foper);
         devs[i].cdev_chardrv.owner = THIS_MODULE;
         devs[i].cdev_chardrv.ops = &chardrv_foper;
         /* reg cdev */
-        error = cdev_add(&devs[i].cdev_chardrv, dev_numb, 1);
+        error = cdev_add(&devs[i].cdev_chardrv, dev_numb + i, 1);
         if (error < 0)
         {
             printk(KERN_ERR "Error add cdev[%d] to system.\n ERROR=%d", i, error);
@@ -236,19 +235,34 @@ int chardrv_module_init(void)
         }
     }
 
-    /* creating class */
-    if ((dev_class = class_create(THIS_MODULE, "chardrv_class")) == NULL)
-    {
-        printk(KERN_ERR "Error creating class.\n");
-        goto error;
-    }
+  /* creating class */
+  if ((dev_class = class_create(THIS_MODULE, "chardrv_class")) == NULL)
+  {
+      printk(KERN_ERR "Error creating class.\n");
+      goto error;
+  }
 
-    /* creat device */
-    if ((device_create(dev_class, NULL, dev_numb, NULL, "chardrv")) == NULL)
-    {
-        printk(KERN_INFO "Error create device.\n");
-        goto error;
-    }
+  /*┌─ gary /dev 
+└─ $ sudo mknod /dev/char1 c 507 1
+┌─ gary /dev 
+└─ $ sudo mknod /dev/char2 c 507 2
+┌─ gary /dev 
+└─ $ sudo mknod /dev/char3 c 507 3
+┌─ gary /dev 
+└─ $ sudo mknod /dev/char4 c 507 4
+┌─ gary /dev 
+└─ $ ls grep | char
+
+to device_create(cl, NULL, MKNOD(MAJOR(first), MINOR(first) + i), NULL, "char%d", i);
+
+buffer[0 1 2 3]*/
+
+  /* creat device */
+  if ((device_create(dev_class, NULL, dev_numb, NULL, "chardrv")) == NULL)
+  {
+      printk(KERN_INFO "Error create device.\n");
+      goto error;
+  }
 
     printk(KERN_INFO "Chardriver init : OK.\n");
     return 0;
