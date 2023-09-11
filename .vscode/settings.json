@@ -3,7 +3,10 @@
         "uaccess.h": "c",
         "cdev.h": "c",
         "kobject.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "cstdlib": "c",
+        "unistd.h": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

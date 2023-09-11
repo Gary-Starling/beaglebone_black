@@ -6,9 +6,17 @@
  */
 #include "gpio_devmem.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 
 int main(int argc, char const *argv[])
-{ 
-    test_ptint_mem_addr(CM_PER_CLK);
+{
+    test_print_mem_addr(CM_PER_CLK);
+
+    if (!gpio_devm_init())
+        return EXIT_FAILURE;
+
     return 0;
 }
